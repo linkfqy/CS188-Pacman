@@ -72,6 +72,32 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+
+def generalSearch(problem: SearchProblem, fringe):
+    """
+    problem: problem of search
+    fringe: empty container of any possible type
+
+    search node is tuple like (state, path, cost)
+    """
+    closed = set()
+    startNode = (problem.getStartState(), [], 0)
+    fringe.push(startNode)
+
+    while True:
+        if fringe.isEmpty():
+            # return None when failed to find a solution, see searchAgent.registerInitialState()
+            return None
+        node = state, path, cost = fringe.pop()
+        if problem.isGoalState(state):
+            return path
+        if state not in closed:
+            closed.add(state)
+            for newState, action, newCost in problem.getSuccessors(state):
+                newNode = (newState, path+[action], cost+newCost)
+                fringe.push(newNode)
+
+
 def depthFirstSearch(problem: SearchProblem):
     """
     Search the deepest nodes in the search tree first.
@@ -86,18 +112,22 @@ def depthFirstSearch(problem: SearchProblem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    return generalSearch(problem, util.Stack())
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    return generalSearch(problem, util.Queue())
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    def fn(node):
+        """function to get priority of search node"""
+        return node[2]
+
+    return generalSearch(problem, util.PriorityQueueWithFunction(fn))
 
 def nullHeuristic(state, problem=None):
     """
@@ -109,7 +139,11 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def fn(node):
+        """function to get priority of search node"""
+        return node[2]+heuristic(node[0],problem)
+    
+    return generalSearch(problem, util.PriorityQueueWithFunction(fn))
 
 
 # Abbreviations
